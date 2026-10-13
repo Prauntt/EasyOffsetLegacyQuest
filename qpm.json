@@ -33,22 +33,7 @@
     },
     {
       "id": "scotland2",
-      "versionRange": "*",
-      "additionalData": {}
-    },
-    {
-      "id": "config-utils",
-      "versionRange": "*",
-      "additionalData": {}
-    },
-    {
-      "id": "bsml",
-      "versionRange": "*",
-      "additionalData": {}
-    },
-    {
-      "id": "paper2_scotland2",
-      "versionRange": "*",
+      "versionRange": "^0.1.6",
       "additionalData": {}
     }
   ]
