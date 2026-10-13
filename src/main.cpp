@@ -2,6 +2,7 @@
 #include "beatsaber-hook/shared/utils/hooking.hpp"
 #include "beatsaber-hook/shared/config/rapidjson-utils.hpp"
 #include "scotland2/shared/loader.hpp"
+#include "paper2_scotland2/shared/logger.hpp"
 
 #include "GlobalNamespace/VRController.hpp"
 #include "GlobalNamespace/IVRPlatformHelper.hpp"
@@ -10,16 +11,13 @@
 #include "UnityEngine/Quaternion.hpp"
 #include "UnityEngine/XR/XRNode.hpp"
 
-#include <android/log.h>
 #include <fstream>
 #include <filesystem>
 #include <cmath>
 #include <string>
 
-#define LOG_INFO(...) __android_log_print(ANDROID_LOG_INFO, "EasyOffsetLegacyQuest", __VA_ARGS__)
-#define LOG_ERROR(...) __android_log_print(ANDROID_LOG_ERROR, "EasyOffsetLegacyQuest", __VA_ARGS__)
-
 static modloader::ModInfo modInfo{MOD_ID, VERSION, 0};
+constexpr auto Logger = Paper::ConstLoggerContext("EasyOffsetLegacyQuest");
 
 static const std::string CONFIG_DIR = "/sdcard/ModData/com.beatgames.beatsaber/Configs/";
 static const std::string CONFIG_FILE = CONFIG_DIR + "EasyOffsetLegacyQuest.json";
@@ -124,7 +122,6 @@ static void SaveConfig() {
 static void LoadConfigAndPresets() {
     std::filesystem::create_directories(CONFIG_DIR);
 
-    // 1. Load main config file if it exists, otherwise create default
     if (std::filesystem::exists(CONFIG_FILE)) {
         std::ifstream f(CONFIG_FILE);
         std::string s((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
@@ -152,7 +149,6 @@ static void LoadConfigAndPresets() {
         SaveConfig();
     }
 
-    // 2. If user dropped a PCVR EasyOffsetPreset.json file in Configs, auto-import & save it!
     if (std::filesystem::exists(PCVR_PRESET_FILE)) {
         std::ifstream f(PCVR_PRESET_FILE);
         std::string s((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
@@ -281,12 +277,12 @@ MAKE_HOOK_MATCH(
 extern "C" __attribute__((visibility("default"))) void setup(CModInfo* info) noexcept {
     *info = modInfo.to_c();
     LoadConfigAndPresets();
-    LOG_INFO("EasyOffsetLegacyQuest setup complete!");
+    Logger.info("EasyOffsetLegacyQuest setup complete!");
 }
 
 extern "C" __attribute__((visibility("default"))) void late_load() noexcept {
     il2cpp_functions::Init();
     LoadConfigAndPresets();
-    INSTALL_HOOK_ORIG(EasyOffsetLegacyQuest, VRController_Update);
-    LOG_INFO("EasyOffsetLegacyQuest hooks installed!");
+    INSTALL_HOOK(Logger, VRController_Update);
+    Logger.info("EasyOffsetLegacyQuest hooks installed!");
 }
