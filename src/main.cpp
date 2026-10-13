@@ -4,6 +4,11 @@
 #include "scotland2/shared/loader.hpp"
 #include "paper2_scotland2/shared/logger.hpp"
 
+#include "bsml/shared/BSML.hpp"
+#include "bsml/shared/BSML-Lite.hpp"
+#include "HMUI/ViewController.hpp"
+#include "TMPro/TextMeshProUGUI.hpp"
+
 #include "GlobalNamespace/VRController.hpp"
 #include "GlobalNamespace/IVRPlatformHelper.hpp"
 #include "UnityEngine/Transform.hpp"
@@ -274,6 +279,57 @@ MAKE_HOOK_MATCH(
     transform->set_localRotation(finalLocalRot);
 }
 
+static TMPro::TextMeshProUGUI* hmdLabel = nullptr;
+
+void DidActivate(HMUI::ViewController* self, bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
+    if (!firstActivation) return;
+
+    auto container = BSML::Lite::CreateScrollableSettingsContainer(self->get_transform());
+    auto parent = container->get_transform();
+
+    BSML::Lite::CreateToggle(parent, "Enable 1.29.1 EasyOffset Math", settings.enabled, [](bool val) {
+        settings.enabled = val;
+        SaveConfig();
+    });
+
+    hmdLabel = BSML::Lite::CreateText(parent, "Current Headset: " + settings.headsetType);
+
+    BSML::Lite::CreateUIButton(parent, "Switch Headset (Quest 3/3S, 2, Pro)", []() {
+        if (settings.headsetType == "Quest 3 / 3S") settings.headsetType = "Quest 2";
+        else if (settings.headsetType == "Quest 2") settings.headsetType = "Quest Pro";
+        else settings.headsetType = "Quest 3 / 3S";
+        if (hmdLabel != nullptr) {
+            hmdLabel->set_text("Current Headset: " + settings.headsetType);
+        }
+        SaveConfig();
+    });
+
+    BSML::Lite::CreateUIButton(parent, "Reload Config / EasyOffsetPreset.json", []() {
+        LoadConfigAndPresets();
+        if (hmdLabel != nullptr) {
+            hmdLabel->set_text("Current Headset: " + settings.headsetType);
+        }
+    });
+
+    // Left Hand Sliders
+    BSML::Lite::CreateIncrementSetting(parent, "Left Pivot X (cm)", 1, 0.1f, settings.leftPivotX, -15.0f, 15.0f, [](float v) { settings.leftPivotX = v; SaveConfig(); });
+    BSML::Lite::CreateIncrementSetting(parent, "Left Pivot Y (cm)", 1, 0.1f, settings.leftPivotY, -15.0f, 15.0f, [](float v) { settings.leftPivotY = v; SaveConfig(); });
+    BSML::Lite::CreateIncrementSetting(parent, "Left Pivot Z (cm)", 1, 0.1f, settings.leftPivotZ, -15.0f, 15.0f, [](float v) { settings.leftPivotZ = v; SaveConfig(); });
+    BSML::Lite::CreateIncrementSetting(parent, "Left Rot X (deg)", 1, 0.5f, settings.leftRotX, -180.0f, 180.0f, [](float v) { settings.leftRotX = v; SaveConfig(); });
+    BSML::Lite::CreateIncrementSetting(parent, "Left Rot Y (deg)", 1, 0.5f, settings.leftRotY, -180.0f, 180.0f, [](float v) { settings.leftRotY = v; SaveConfig(); });
+    BSML::Lite::CreateIncrementSetting(parent, "Left Rot Z (deg)", 1, 0.5f, settings.leftRotZ, -180.0f, 180.0f, [](float v) { settings.leftRotZ = v; SaveConfig(); });
+    BSML::Lite::CreateIncrementSetting(parent, "Left Z-Offset (cm)", 1, 0.1f, settings.leftZOffset, -15.0f, 15.0f, [](float v) { settings.leftZOffset = v; SaveConfig(); });
+
+    // Right Hand Sliders
+    BSML::Lite::CreateIncrementSetting(parent, "Right Pivot X (cm)", 1, 0.1f, settings.rightPivotX, -15.0f, 15.0f, [](float v) { settings.rightPivotX = v; SaveConfig(); });
+    BSML::Lite::CreateIncrementSetting(parent, "Right Pivot Y (cm)", 1, 0.1f, settings.rightPivotY, -15.0f, 15.0f, [](float v) { settings.rightPivotY = v; SaveConfig(); });
+    BSML::Lite::CreateIncrementSetting(parent, "Right Pivot Z (cm)", 1, 0.1f, settings.rightPivotZ, -15.0f, 15.0f, [](float v) { settings.rightPivotZ = v; SaveConfig(); });
+    BSML::Lite::CreateIncrementSetting(parent, "Right Rot X (deg)", 1, 0.5f, settings.rightRotX, -180.0f, 180.0f, [](float v) { settings.rightRotX = v; SaveConfig(); });
+    BSML::Lite::CreateIncrementSetting(parent, "Right Rot Y (deg)", 1, 0.5f, settings.rightRotY, -180.0f, 180.0f, [](float v) { settings.rightRotY = v; SaveConfig(); });
+    BSML::Lite::CreateIncrementSetting(parent, "Right Rot Z (deg)", 1, 0.5f, settings.rightRotZ, -180.0f, 180.0f, [](float v) { settings.rightRotZ = v; SaveConfig(); });
+    BSML::Lite::CreateIncrementSetting(parent, "Right Z-Offset (cm)", 1, 0.1f, settings.rightZOffset, -15.0f, 15.0f, [](float v) { settings.rightZOffset = v; SaveConfig(); });
+}
+
 extern "C" __attribute__((visibility("default"))) void setup(CModInfo* info) noexcept {
     *info = modInfo.to_c();
     LoadConfigAndPresets();
@@ -283,6 +339,8 @@ extern "C" __attribute__((visibility("default"))) void setup(CModInfo* info) noe
 extern "C" __attribute__((visibility("default"))) void late_load() noexcept {
     il2cpp_functions::Init();
     LoadConfigAndPresets();
+    BSML::Init();
+    BSML::Register::RegisterSettingsMenu("EasyOffset 1.29.1", DidActivate, false);
     INSTALL_HOOK(Logger, VRController_Update);
-    Logger.info("EasyOffsetLegacyQuest hooks installed!");
+    Logger.info("EasyOffsetLegacyQuest hooks & BSML UI installed!");
 }
