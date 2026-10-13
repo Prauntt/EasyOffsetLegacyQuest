@@ -25,5 +25,6 @@ target_include_directories(${COMPILE_ID} PRIVATE include)
 target_include_directories(${COMPILE_ID} PRIVATE shared)
 
 include(${CMAKE_CURRENT_LIST_DIR}/extern.cmake)
+include(${EXTERN_DIR}/includes/beatsaber-hook/shared/inline-hook/cmake/inline-hook.cmake)
 
 target_link_libraries(${COMPILE_ID} PRIVATE -llog)
