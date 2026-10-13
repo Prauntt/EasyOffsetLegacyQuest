@@ -14,45 +14,37 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Install Ninja & Dependencies
+      - name: Install Ninja & Zip
         run: sudo apt-get update && sudo apt-get install -y ninja-build zip
 
-      - name: Setup Android NDK (r26c)
-        uses: nttld/setup-ndk@v1
-        id: setup-ndk
-        with:
-          ndk-version: r26c
-          add-to-path: true
-
-      - name: Export NDK Variables
+      - name: Install QPM (QuestPackageManager CLI)
         run: |
-          echo "ANDROID_NDK_HOME=${{ steps.setup-ndk.outputs.ndk-path }}" >> $GITHUB_ENV
-          echo "ANDROID_NDK_ROOT=${{ steps.setup-ndk.outputs.ndk-path }}" >> $GITHUB_ENV
-
-      - name: Install QPM
-        run: |
-          curl -L https://github.com/QuestPackageManager/QPM.CLI/releases/latest/download/qpm-ubuntu-latest.zip -o qpm.zip
+          curl -L https://github.com/QuestPackageManager/QPM.CLI/releases/latest/download/qpm-linux-x64.zip -o qpm.zip
           unzip -o qpm.zip
           chmod +x qpm
           sudo mv qpm /usr/local/bin/qpm
           qpm --version
 
-      - name: Restore QPM Dependencies
+      - name: Download Android NDK & Restore Dependencies
         run: |
-          qpm config ndk-path "${{ steps.setup-ndk.outputs.ndk-path }}"
+          qpm ndk download 26
+          qpm ndk pin 26
+          qpm ndk resolve -d
           qpm restore
 
-      - name: Compile Mod
+      - name: Compile C++ Mod (.so)
         run: |
-          cmake -G "Ninja" -B build -DCMAKE_BUILD_TYPE="RelWithDebInfo" -DANDROID_NDK="${{ steps.setup-ndk.outputs.ndk-path }}"
+          export ANDROID_NDK_HOME=$(cat ndkpath.txt)
+          cmake -G "Ninja" -B build -DCMAKE_BUILD_TYPE="RelWithDebInfo" -DANDROID_NDK="$ANDROID_NDK_HOME"
           cmake --build build
 
-      - name: Create .qmod
+      - name: Package .qmod File
         run: |
           qpm qmod manifest
-          zip -j EasyOffsetLegacyQuest.qmod mod.json build/libeasyoffset-legacy-quest.so
+          cp build/libeasyoffset-legacy-quest.so . || true
+          zip -j EasyOffsetLegacyQuest.qmod mod.json build/libeasyoffset-legacy-quest.so extern/libs/*.so
 
-      - name: Upload .qmod File
+      - name: Upload .qmod Artifact
         uses: actions/upload-artifact@v4
         with:
           name: EasyOffsetLegacyQuest_1.40.8
