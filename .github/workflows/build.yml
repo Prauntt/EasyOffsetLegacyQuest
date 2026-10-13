@@ -38,7 +38,7 @@ jobs:
       - name: Package .qmod File
         run: |
           qpm qmod manifest
-          zip -j EasyOffsetLegacyQuest.qmod mod.json build/libeasyoffset-legacy-quest.so extern/libs/*.so || zip -j EasyOffsetLegacyQuest.qmod mod.json build/libeasyoffset-legacy-quest.so
+          zip -j EasyOffsetLegacyQuest.qmod mod.json build/libeasyoffset-legacy-quest.so
 
       - name: Upload .qmod Artifact
         uses: actions/upload-artifact@v4
