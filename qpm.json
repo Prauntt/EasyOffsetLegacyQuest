@@ -4,7 +4,7 @@
   "info": {
     "name": "EasyOffsetLegacyQuest",
     "id": "easyoffset-legacy-quest",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "url": "https://github.com/Prauntt/EasyOffsetLegacyQuest",
     "additionalData": {
       "overrideSoName": "libeasyoffset-legacy-quest.so",
@@ -40,6 +40,11 @@
     {
       "id": "paper2_scotland2",
       "versionRange": "^4.8.0",
+      "additionalData": {}
+    },
+    {
+      "id": "bsml",
+      "versionRange": "^0.4.50",
       "additionalData": {}
     }
   ]
