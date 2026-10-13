@@ -15,8 +15,7 @@
     "scripts": {},
     "ndk": "^26.0.0",
     "qmodIncludeDirs": [
-      "build",
-      "extern/libs"
+      "build"
     ],
     "qmodIncludeFiles": [],
     "qmodOutput": "EasyOffsetLegacyQuest.qmod"
@@ -29,22 +28,22 @@
     },
     {
       "id": "bs-cordl",
-      "versionRange": "4008.*",
+      "versionRange": "^4008.0.0",
       "additionalData": {}
     },
     {
       "id": "scotland2",
-      "versionRange": "^0.1.7",
+      "versionRange": "^0.1.6",
       "additionalData": {}
     },
     {
       "id": "paper2_scotland2",
-      "versionRange": "^4.8.0",
+      "versionRange": "*",
       "additionalData": {}
     },
     {
       "id": "bsml",
-      "versionRange": "^0.4.50",
+      "versionRange": "=0.4.55",
       "additionalData": {}
     }
   ]
