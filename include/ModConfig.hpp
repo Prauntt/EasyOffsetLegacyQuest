@@ -2,10 +2,8 @@
 #include "config-utils/shared/config-utils.hpp"
 #include <string>
 
-DECLARE_CONFIG(ModConfig) {
+DECLARE_CONFIG(ModConfig,
     CONFIG_VALUE(Enabled, bool, "Enable 1.29.1 EasyOffset Math", true);
-
-    // Headset Profile: "Quest 3 / 3S", "Quest 2", or "Quest Pro"
     CONFIG_VALUE(HeadsetType, std::string, "Headset Profile", "Quest 3 / 3S");
 
     // LEFT HAND SETTINGS (cm & degrees)
@@ -25,4 +23,4 @@ DECLARE_CONFIG(ModConfig) {
     CONFIG_VALUE(RightRotY, float, "Right Rotation Y (deg)", 0.0f);
     CONFIG_VALUE(RightRotZ, float, "Right Rotation Z (deg)", 0.0f);
     CONFIG_VALUE(RightZOffset, float, "Right Z-Offset (cm)", 0.0f);
-};
+)
