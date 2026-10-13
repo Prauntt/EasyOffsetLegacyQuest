@@ -7,7 +7,8 @@
     "version": "1.1.0",
     "url": "https://github.com/Prauntt/EasyOffsetLegacyQuest",
     "additionalData": {
-      "overrideSoName": "libeasyoffset-legacy-quest.so"
+      "overrideSoName": "libeasyoffset-legacy-quest.so",
+      "cmake": true
     }
   },
   "workspace": {
@@ -23,7 +24,7 @@
   "dependencies": [
     {
       "id": "beatsaber-hook",
-      "versionRange": "^6.3.0",
+      "versionRange": "^6.4.2",
       "additionalData": {}
     },
     {
@@ -33,7 +34,12 @@
     },
     {
       "id": "scotland2",
-      "versionRange": "^0.1.6",
+      "versionRange": "^0.1.7",
+      "additionalData": {}
+    },
+    {
+      "id": "paper2_scotland2",
+      "versionRange": "^4.8.0",
       "additionalData": {}
     }
   ]
