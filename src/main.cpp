@@ -30,9 +30,8 @@ static const std::string PCVR_PRESET_FILE = CONFIG_DIR + "EasyOffsetPreset.json"
 
 struct ModSettings {
     bool enabled = true;
-    std::string headsetType = "Quest 3 / 3S"; // Options: "Quest 3 / 3S", "Quest 2", "Quest Pro"
+    std::string headsetType = "Quest 3 / 3S";
 
-    // Left Hand (cm and degrees, matching EasyOffset UI)
     float leftPivotX = 0.0f;
     float leftPivotY = 0.0f;
     float leftPivotZ = 0.0f;
@@ -41,7 +40,6 @@ struct ModSettings {
     float leftRotZ = 0.0f;
     float leftZOffset = 0.0f;
 
-    // Right Hand (cm and degrees, matching EasyOffset UI)
     float rightPivotX = 0.0f;
     float rightPivotY = 0.0f;
     float rightPivotZ = 0.0f;
@@ -62,7 +60,6 @@ static HeadsetDelta GetHeadsetDelta(const std::string& headset) {
     } else if (headset == "Quest Pro") {
         return { UnityEngine::Vector3(0.0015f, -0.0065f, -0.0135f), UnityEngine::Vector3(39.2f, 0.0f, 0.0f) };
     }
-    // Default: Quest 3 / 3S
     return { UnityEngine::Vector3(0.0f, -0.0095f, -0.0168f), UnityEngine::Vector3(40.0f, 0.0f, 0.0f) };
 }
 
@@ -311,7 +308,6 @@ void DidActivate(HMUI::ViewController* self, bool firstActivation, bool addedToH
         }
     });
 
-    // Left Hand Sliders
     BSML::Lite::CreateIncrementSetting(parent, "Left Pivot X (cm)", 1, 0.1f, settings.leftPivotX, -15.0f, 15.0f, [](float v) { settings.leftPivotX = v; SaveConfig(); });
     BSML::Lite::CreateIncrementSetting(parent, "Left Pivot Y (cm)", 1, 0.1f, settings.leftPivotY, -15.0f, 15.0f, [](float v) { settings.leftPivotY = v; SaveConfig(); });
     BSML::Lite::CreateIncrementSetting(parent, "Left Pivot Z (cm)", 1, 0.1f, settings.leftPivotZ, -15.0f, 15.0f, [](float v) { settings.leftPivotZ = v; SaveConfig(); });
@@ -320,7 +316,6 @@ void DidActivate(HMUI::ViewController* self, bool firstActivation, bool addedToH
     BSML::Lite::CreateIncrementSetting(parent, "Left Rot Z (deg)", 1, 0.5f, settings.leftRotZ, -180.0f, 180.0f, [](float v) { settings.leftRotZ = v; SaveConfig(); });
     BSML::Lite::CreateIncrementSetting(parent, "Left Z-Offset (cm)", 1, 0.1f, settings.leftZOffset, -15.0f, 15.0f, [](float v) { settings.leftZOffset = v; SaveConfig(); });
 
-    // Right Hand Sliders
     BSML::Lite::CreateIncrementSetting(parent, "Right Pivot X (cm)", 1, 0.1f, settings.rightPivotX, -15.0f, 15.0f, [](float v) { settings.rightPivotX = v; SaveConfig(); });
     BSML::Lite::CreateIncrementSetting(parent, "Right Pivot Y (cm)", 1, 0.1f, settings.rightPivotY, -15.0f, 15.0f, [](float v) { settings.rightPivotY = v; SaveConfig(); });
     BSML::Lite::CreateIncrementSetting(parent, "Right Pivot Z (cm)", 1, 0.1f, settings.rightPivotZ, -15.0f, 15.0f, [](float v) { settings.rightPivotZ = v; SaveConfig(); });
