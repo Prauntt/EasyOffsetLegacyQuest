@@ -25,27 +25,22 @@ jobs:
           sudo mv qpm /usr/local/bin/qpm
           qpm --version
 
-      - name: Download Android NDK & Restore Dependencies
+      - name: Resolve Android NDK & Restore QPM Dependencies
         run: |
-          qpm ndk download 26
-          qpm ndk pin 26
           qpm ndk resolve -d
           qpm restore
 
       - name: Compile C++ Mod (.so)
         run: |
-          export ANDROID_NDK_HOME=$(cat ndkpath.txt)
-          cmake -G "Ninja" -B build -DCMAKE_BUILD_TYPE="RelWithDebInfo" -DANDROID_NDK="$ANDROID_NDK_HOME"
+          cmake -G "Ninja" -B build -DCMAKE_BUILD_TYPE="RelWithDebInfo"
           cmake --build build
 
       - name: Package .qmod File
         run: |
-          qpm qmod manifest
-          cp build/libeasyoffset-legacy-quest.so . || true
-          zip -j EasyOffsetLegacyQuest.qmod mod.json build/libeasyoffset-legacy-quest.so extern/libs/*.so
+          qpm qmod zip
 
       - name: Upload .qmod Artifact
         uses: actions/upload-artifact@v4
         with:
           name: EasyOffsetLegacyQuest_1.40.8
-          path: EasyOffsetLegacyQuest.qmod
+          path: "*.qmod"
