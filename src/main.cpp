@@ -7,18 +7,19 @@
 #include "paper2_scotland2/shared/logger.hpp"
 
 #include "bsml/shared/BSML.hpp"
-#include "bsml/shared/BSMLDataCache.hpp"
+#include "bsml/shared/BSML-Lite.hpp"
 #include "HMUI/ViewController.hpp"
 
 #include "GlobalNamespace/VRController.hpp"
+#include "GlobalNamespace/IVRPlatformHelper.hpp"
 #include "UnityEngine/Transform.hpp"
 #include "UnityEngine/Vector3.hpp"
 #include "UnityEngine/Quaternion.hpp"
 #include "UnityEngine/XR/XRNode.hpp"
-#include "UnityEngine/XR/InputTracking.hpp"
 
 #include <fstream>
 #include <filesystem>
+#include <cmath>
 
 static modloader::ModInfo modInfo{MOD_ID, VERSION, 0};
 constexpr auto Logger = Paper::ConstLoggerContext("EasyOffsetLegacyQuest");
@@ -38,6 +39,10 @@ static HeadsetDelta GetHeadsetDelta(const std::string& headset) {
     }
     // Default: Quest 3 / 3S
     return { UnityEngine::Vector3(0.0f, -0.0095f, -0.0168f), UnityEngine::Vector3(40.0f, 0.0f, 0.0f) };
+}
+
+static UnityEngine::Vector3 AddVec(UnityEngine::Vector3 a, UnityEngine::Vector3 b) {
+    return UnityEngine::Vector3(a.x + b.x, a.y + b.y, a.z + b.z);
 }
 
 static UnityEngine::Vector3 RotateVector(UnityEngine::Quaternion q, UnityEngine::Vector3 v) {
@@ -155,14 +160,17 @@ MAKE_HOOK_MATCH(
 
     bool isLeft = (node == UnityEngine::XR::XRNode::LeftHand);
 
-    UnityEngine::Vector3 rawPos = UnityEngine::XR::InputTracking::GetLocalPosition(node);
-    UnityEngine::Quaternion rawRot = UnityEngine::XR::InputTracking::GetLocalRotation(node);
+    // Fetch raw OpenXR pose before 1.40.8 applies controller offsets
+    UnityEngine::Vector3 rawPos = self->_lastTrackedPosition;
+    UnityEngine::Quaternion rawRot = UnityEngine::Quaternion::get_identity();
 
-    if (rawPos.x == 0.0f && rawPos.y == 0.0f && rawPos.z == 0.0f &&
-        rawRot.x == 0.0f && rawRot.y == 0.0f && rawRot.z == 0.0f) {
-        rawPos = self->_lastTrackedPosition;
-    } else {
-        self->_lastTrackedPosition = rawPos;
+    if (self->_vrPlatformHelper != nullptr) {
+        bool valid = self->_vrPlatformHelper->GetNodePose(node, self->_nodeIdx, byref(rawPos), byref(rawRot));
+        if (valid) {
+            self->_lastTrackedPosition = rawPos;
+        } else {
+            rawPos = self->_lastTrackedPosition;
+        }
     }
 
     HeadsetDelta hmdDelta = GetHeadsetDelta(getModConfig().HeadsetType.GetValue());
@@ -175,7 +183,7 @@ MAKE_HOOK_MATCH(
         hmdDelta.rotEuler.z * sign
     );
 
-    UnityEngine::Vector3 ovrBasePos = rawPos + RotateVector(rawRot, deltaPos);
+    UnityEngine::Vector3 ovrBasePos = AddVec(rawPos, RotateVector(rawRot, deltaPos));
     UnityEngine::Quaternion ovrBaseRot = MultiplyQuat(rawRot, deltaRot);
 
     UnityEngine::Vector3 pivotPos;
@@ -209,9 +217,9 @@ MAKE_HOOK_MATCH(
     }
 
     UnityEngine::Quaternion finalLocalRot = MultiplyQuat(ovrBaseRot, eoRot);
-    UnityEngine::Vector3 worldPivotPos = ovrBasePos + RotateVector(ovrBaseRot, pivotPos);
+    UnityEngine::Vector3 worldPivotPos = AddVec(ovrBasePos, RotateVector(ovrBaseRot, pivotPos));
     UnityEngine::Vector3 zOffsetVec(0.0f, 0.0f, zOffsetMeters);
-    UnityEngine::Vector3 finalLocalPos = worldPivotPos + RotateVector(finalLocalRot, zOffsetVec);
+    UnityEngine::Vector3 finalLocalPos = AddVec(worldPivotPos, RotateVector(finalLocalRot, zOffsetVec));
 
     auto transform = self->get_transform();
     transform->set_localPosition(finalLocalPos);
@@ -225,9 +233,9 @@ void DidActivate(HMUI::ViewController* self, bool firstActivation, bool addedToH
 
     AddConfigValueToggle(container->get_transform(), getModConfig().Enabled);
 
-    auto hmdBtn = BSML::Lite::CreateUIButton(
+    BSML::Lite::CreateUIButton(
         container->get_transform(),
-        "Headset: " + getModConfig().HeadsetType.GetValue(),
+        "Switch Headset (Quest 3/3S, 2, Pro)",
         []() {
             std::string current = getModConfig().HeadsetType.GetValue();
             std::string next = "Quest 3 / 3S";
@@ -262,19 +270,17 @@ void DidActivate(HMUI::ViewController* self, bool firstActivation, bool addedToH
     AddConfigValueIncrementFloat(container->get_transform(), getModConfig().RightZOffset, 1, 0.1f, -15.0f, 15.0f);
 }
 
-extern "C" void setup(CModInfo* info) {
-    info->id = MOD_ID;
-    info->version = VERSION;
-    info->version_long = 0;
-    modInfo = *info;
-
+extern "C" __attribute__((visibility("default"))) void setup(CModInfo* info) noexcept {
+    *info = modInfo.to_c();
     getModConfig().Init(modInfo);
     ImportPCVREasyOffsetPreset();
+    Logger.info("Completed EasyOffsetLegacyQuest setup!");
 }
 
-extern "C" void late_load() {
+extern "C" __attribute__((visibility("default"))) void late_load() noexcept {
     il2cpp_functions::Init();
     BSML::Init();
     BSML::Register::RegisterSettingsMenu("EasyOffset 1.29.1", DidActivate, false);
     INSTALL_HOOK(Logger, VRController_Update);
+    Logger.info("Installed EasyOffsetLegacyQuest hooks!");
 }
