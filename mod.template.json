@@ -1,0 +1,19 @@
+{
+  "_QPVersion": "1.1.0",
+  "name": "EasyOffset 1.29.1 Legacy",
+  "id": "${mod_id}",
+  "author": "Praunt",
+  "version": "${version}",
+  "packageId": "com.beatgames.beatsaber",
+  "packageVersion": "1.40.8_7379",
+  "description": "Applies exact 1.29.1 PCVR (-vrmode oculus) EasyOffset math and headset calibration on 1.40.8 Standalone.",
+  "modloader": "Scotland2",
+  "dependencies": [],
+  "modFiles": [],
+  "lateModFiles": [
+    "${binary}"
+  ],
+  "libraryFiles": [],
+  "fileCopies": [],
+  "copyExtensions": []
+}
