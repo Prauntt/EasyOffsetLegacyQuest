@@ -5,10 +5,20 @@
     "name": "EasyOffsetLegacyQuest",
     "id": "easyoffset-legacy-quest",
     "version": "1.1.0",
-    "url": "https://github.com/example/EasyOffsetLegacyQuest",
+    "url": "https://github.com/Prauntt/EasyOffsetLegacyQuest",
     "additionalData": {
       "overrideSoName": "libeasyoffset-legacy-quest.so"
     }
+  },
+  "workspace": {
+    "scripts": {},
+    "ndk": "^26.0.0",
+    "qmodIncludeDirs": [
+      "build",
+      "extern/libs"
+    ],
+    "qmodIncludeFiles": [],
+    "qmodOutput": "EasyOffsetLegacyQuest.qmod"
   },
   "dependencies": [
     {
@@ -19,6 +29,11 @@
     {
       "id": "bs-cordl",
       "versionRange": "4008.*",
+      "additionalData": {}
+    },
+    {
+      "id": "scotland2",
+      "versionRange": "^0.1.6",
       "additionalData": {}
     },
     {
