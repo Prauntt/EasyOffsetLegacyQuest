@@ -1,15 +1,7 @@
 cmake_minimum_required(VERSION 3.22)
 
-# Generated automatically by qpm restore
+# Generated automatically by `qpm restore`
 include(${CMAKE_CURRENT_LIST_DIR}/qpm_defines.cmake)
-
-if(DEFINED ENV{ANDROID_NDK_HOME} AND NOT DEFINED CMAKE_TOOLCHAIN_FILE)
-    set(CMAKE_TOOLCHAIN_FILE "$ENV{ANDROID_NDK_HOME}/build/cmake/android.toolchain.cmake")
-endif()
-
-set(ANDROID_ABI "arm64-v8a")
-set(ANDROID_PLATFORM "android-29")
-set(ANDROID_STL "c++_static")
 
 project(${COMPILE_ID})
 
@@ -32,10 +24,10 @@ add_library(
 target_include_directories(${COMPILE_ID} PRIVATE .)
 target_include_directories(${COMPILE_ID} PRIVATE include)
 target_include_directories(${COMPILE_ID} PRIVATE shared)
-target_include_directories(${COMPILE_ID} SYSTEM PRIVATE ${EXTERN_DIR}/includes)
-target_include_directories(${COMPILE_ID} SYSTEM PRIVATE ${EXTERN_DIR}/includes/bs-cordl/include)
+target_include_directories(${COMPILE_ID} SYSTEM PRIVATE${EXTERN_DIR}/includes)
+target_include_directories(${COMPILE_ID} SYSTEM PRIVATE${EXTERN_DIR}/includes/bs-cordl/include)
 
-include(${EXTERN_DIR}/includes/beatsaber-hook/shared/inline-hook/cmake/inline-hook.cmake)
+# Generated automatically by `qpm restore` (links all dependencies and inline-hook)
+include(${CMAKE_CURRENT_LIST_DIR}/extern.cmake)
 
 target_link_libraries(${COMPILE_ID} PRIVATE -llog)
-include(${CMAKE_CURRENT_LIST_DIR}/qpm_shared.cmake)
